@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 cudarc = "0.10.0"
 libc = "0.2"
+
+[build-dependencies]
+bindgen_cuda = "0.1.5"
