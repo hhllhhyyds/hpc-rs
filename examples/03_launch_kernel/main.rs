@@ -7,7 +7,11 @@ fn main() -> Result<(), DriverError> {
     let dev = CudaDevice::new(0)?;
 
     // You can load a function from a pre-compiled PTX like so:
-    dev.load_ptx(Ptx::from_file("./examples/sin.ptx"), "sin", &["sin_kernel"])?;
+    dev.load_ptx(
+        Ptx::from_file("./examples/03_launch_kernel/sin.ptx"),
+        "sin",
+        &["sin_kernel"],
+    )?;
 
     // and then retrieve the function with `get_func`
     let f = dev.get_func("sin", "sin_kernel").unwrap();
