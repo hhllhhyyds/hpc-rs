@@ -7,6 +7,10 @@ edition = "2021"
 
 [dependencies]
 cudarc = "0.10.0"
+glob = "0.3.0"
 
 [build-dependencies]
 bindgen_cuda = "0.1.5"
+
+[[bin]]
+name = "cuda-profile"
