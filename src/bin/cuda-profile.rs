@@ -1,4 +1,5 @@
 use std::{
+    io::{self, Write},
     path::{Path, PathBuf},
     process::Command,
 };
@@ -43,6 +44,7 @@ fn profile(program: impl AsRef<Path>) {
         "target/cuda-profile",
         "--stats=true",
         "--trace=cuda",
+        "--force-overwrite=true",
         program.as_ref().to_str().unwrap(),
     ];
 
@@ -52,5 +54,9 @@ fn profile(program: impl AsRef<Path>) {
 
     let output = cmd.output().expect("failed to execute process");
 
-    println!("{}", String::from_utf8_lossy(output.stdout.as_slice()));
+    println!("status: {}", output.status);
+    io::stdout().write_all(&output.stdout).unwrap();
+    io::stderr().write_all(&output.stderr).unwrap();
+
+    assert!(output.status.success());
 }
