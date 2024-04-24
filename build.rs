@@ -27,7 +27,7 @@ fn build_exe() {
             p.display()
                 .to_string()
                 .split_off("src/cu/for_exe/".len())
-                .split(".")
+                .split('.')
                 .next()
                 .unwrap()
                 .to_string()

@@ -97,7 +97,7 @@ pub fn compute_cap() -> usize {
     compute_cap
 }
 
-pub fn run_cmd(args: &[&str]) {
+pub fn run_cmd(args: &[&str]) -> bool {
     let mut cmd = Command::new("cmd");
     cmd.args(args);
     println!("cmd = {:?}", cmd);
@@ -107,4 +107,6 @@ pub fn run_cmd(args: &[&str]) {
     println!("status: {}", output.status);
     io::stdout().write_all(&output.stdout).unwrap();
     io::stderr().write_all(&output.stderr).unwrap();
+
+    output.status.success()
 }

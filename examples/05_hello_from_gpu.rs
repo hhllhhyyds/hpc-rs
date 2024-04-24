@@ -25,7 +25,7 @@ fn gpu_hello_world(dev: &Arc<CudaDevice>) -> Result<(), DriverError> {
     )?;
 
     let cuda_func = dev
-        .get_func(&func_name, &func_name)
+        .get_func(func_name, func_name)
         .unwrap_or_else(|| panic!("function {} not found in ptx", func_name));
 
     let cfg = LaunchConfig {
