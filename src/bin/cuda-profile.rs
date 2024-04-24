@@ -19,22 +19,12 @@ fn main() {
     println!("example_path = {}", example_path.display());
     assert!(std::path::Path::exists(&example_path));
 
+    // nsys_profile_help();
     profile(example_path, &args[3..]);
 }
 
 fn profile<T: AsRef<str>, P: AsRef<Path>>(program: P, programs_args: &[T]) {
-    let nsys_path_pattern = Path::new("C:\\")
-        .join("Program Files")
-        .join("NVIDIA Corporation")
-        .join("Nsight Systems 2023.4.4")
-        .join("target-windows-x64")
-        .join("*nsys*");
-    let nsys = glob::glob(nsys_path_pattern.to_str().unwrap())
-        .unwrap()
-        .next()
-        .unwrap()
-        .unwrap();
-    println!("nsys_path = {}", nsys.display());
+    let nsys = nsys_path();
 
     let mut args = vec![
         "/C",
@@ -49,6 +39,31 @@ fn profile<T: AsRef<str>, P: AsRef<Path>>(program: P, programs_args: &[T]) {
     ];
     args.extend(programs_args.iter().map(|x| x.as_ref()));
 
+    run_cmd(&args);
+}
+
+#[allow(unused)]
+fn nsys_profile_help() {
+    let nsys = nsys_path();
+    let args = vec!["/C", nsys.to_str().unwrap(), "profile", "--help"];
+    run_cmd(&args);
+}
+
+fn nsys_path() -> PathBuf {
+    let nsys_path_pattern = Path::new("C:\\")
+        .join("Program Files")
+        .join("NVIDIA Corporation")
+        .join("Nsight Systems 2023.4.4")
+        .join("target-windows-x64")
+        .join("*nsys*");
+    glob::glob(nsys_path_pattern.to_str().unwrap())
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+}
+
+fn run_cmd(args: &[&str]) {
     let mut cmd = Command::new("cmd");
     cmd.args(args);
     println!("cmd = {:?}", cmd);

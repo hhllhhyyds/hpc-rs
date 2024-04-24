@@ -1,7 +1,7 @@
 use cudarc::driver::{CudaDevice, LaunchAsync, LaunchConfig};
-use cudarc::nvrtc::Ptx;
 use hpc_rs::cuda_initialize::GpuInfo;
 use hpc_rs::error::Error;
+use hpc_rs::ptx_loader::PtxLoader;
 use rand::Rng;
 
 fn main() -> Result<(), Error> {
@@ -39,18 +39,20 @@ fn main() -> Result<(), Error> {
     let mut device_idata = dev.htod_copy(host_idata.clone()).unwrap();
     let device_odata = dev.alloc_zeros::<u32>(grid_dim.0 as usize)?;
 
-    dev.load_ptx(
-        Ptx::from_src(hpc_rs::ptx::REDUCE_SUM),
+    let ptx_loader = PtxLoader::new(
+        &dev,
+        hpc_rs::ptx::REDUCE_SUM,
         "reduce_sum",
-        &["reduce_neighbored_1", "reduce_neighbored_2"],
-    )?;
+        &[
+            "reduce_neighbored_1",
+            "reduce_neighbored_2",
+            "reduce_interleaved",
+        ],
+    );
 
-    let cuda_func_1 = dev
-        .get_func("reduce_sum", "reduce_neighbored_1")
-        .expect("Can not find function 1 in ptx");
-    let cuda_func_2 = dev
-        .get_func("reduce_sum", "reduce_neighbored_2")
-        .expect("Can not find function 2 in ptx");
+    let cuda_func_1 = ptx_loader.get_func("reduce_neighbored_1").unwrap();
+    let cuda_func_2 = ptx_loader.get_func("reduce_neighbored_2").unwrap();
+    let cuda_func_3 = ptx_loader.get_func("reduce_interleaved").unwrap();
 
     let cfg = LaunchConfig {
         block_dim,
@@ -72,12 +74,27 @@ fn main() -> Result<(), Error> {
         "host_sum = {host_sum}, gpu_sum = {gpu_sum}"
     );
 
-    dev.htod_copy_into(host_idata, &mut device_idata)?;
+    dev.htod_copy_into(host_idata.clone(), &mut device_idata)?;
     let start = std::time::Instant::now();
     unsafe { cuda_func_2.launch(cfg, (&device_idata, &device_odata, size)) }?;
     dev.synchronize()?;
     println!(
         "Time used in running gpu reduce sum kernel cuda_func_2 = {:?}",
+        start.elapsed()
+    );
+    let gpu_result = dev.dtoh_sync_copy(&device_odata).unwrap();
+    let gpu_sum: u32 = gpu_result.iter().sum();
+    assert!(
+        host_sum == gpu_sum,
+        "host_sum = {host_sum}, gpu_sum = {gpu_sum}"
+    );
+
+    dev.htod_copy_into(host_idata, &mut device_idata)?;
+    let start = std::time::Instant::now();
+    unsafe { cuda_func_3.launch(cfg, (&device_idata, &device_odata, size)) }?;
+    dev.synchronize()?;
+    println!(
+        "Time used in running gpu reduce sum kernel cuda_func_3 = {:?}",
         start.elapsed()
     );
     let gpu_result = dev.dtoh_sync_copy(&device_odata).unwrap();
