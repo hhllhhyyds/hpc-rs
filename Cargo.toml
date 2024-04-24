@@ -9,10 +9,15 @@ edition = "2021"
 cudarc = "0.10.0"
 glob = "0.3.0"
 rand = "0.8.0"
+env_manager = {path = "env_manager"}
 
 [build-dependencies]
 bindgen_cuda = "0.1.5"
 glob = "0.3.0"
+env_manager = {path = "env_manager"}
 
 [[bin]]
 name = "cuda-profile"
+
+[workspace]
+members = ["env_manager"]

@@ -1,16 +1,12 @@
-use std::{
-    io::{self, Write},
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::path::{Path, PathBuf};
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     assert!(args[1] == "example");
 
-    let example_exe = args[2].clone() + ".exe";
+    let example_exe = args[2].clone() + env_manager::EXE_SUFFIX;
 
-    let mut example_path: PathBuf = std::env::var_os("CARGO_MANIFEST_DIR").unwrap().into();
+    let mut example_path = env_manager::manifest_dir();
     example_path.push("target");
     example_path.push("debug");
     example_path.push("examples");
@@ -27,7 +23,6 @@ fn profile<T: AsRef<str>, P: AsRef<Path>>(program: P, programs_args: &[T]) {
     let nsys = nsys_path();
 
     let mut args = vec![
-        "/C",
         nsys.to_str().unwrap(),
         "profile",
         "-o",
@@ -39,40 +34,22 @@ fn profile<T: AsRef<str>, P: AsRef<Path>>(program: P, programs_args: &[T]) {
     ];
     args.extend(programs_args.iter().map(|x| x.as_ref()));
 
-    run_cmd(&args);
+    let success = env_manager::run_cmd(&args);
+    assert!(success)
 }
 
 #[allow(unused)]
 fn nsys_profile_help() {
     let nsys = nsys_path();
-    let args = vec!["/C", nsys.to_str().unwrap(), "profile", "--help"];
-    run_cmd(&args);
+    let args = vec![nsys.to_str().unwrap(), "profile", "--help"];
+    let success = env_manager::run_cmd(&args);
+    assert!(success)
 }
 
 fn nsys_path() -> PathBuf {
-    let nsys_path_pattern = Path::new("C:\\")
-        .join("Program Files")
-        .join("NVIDIA Corporation")
-        .join("Nsight Systems 2023.4.4")
-        .join("target-windows-x64")
-        .join("*nsys*");
-    glob::glob(nsys_path_pattern.to_str().unwrap())
-        .unwrap()
-        .next()
-        .unwrap()
-        .unwrap()
-}
-
-fn run_cmd(args: &[&str]) {
-    let mut cmd = Command::new("cmd");
-    cmd.args(args);
-    println!("cmd = {:?}", cmd);
-
-    let output = cmd.output().expect("failed to execute process");
-
-    println!("status: {}", output.status);
-    io::stdout().write_all(&output.stdout).unwrap();
-    io::stderr().write_all(&output.stderr).unwrap();
-
-    assert!(output.status.success());
+    let path = PathBuf::from(
+        "C:/Program Files/NVIDIA Corporation/Nsight Systems 2023.4.4/target-windows-x64/nsys.exe",
+    );
+    assert!(path.is_file(), "nsys not found");
+    path
 }

@@ -1,56 +1,64 @@
 use std::{
+    env,
     error::Error,
     path::{Path, PathBuf},
 };
 
-#[path = "src/cuda_env.rs"]
-mod cuda_env;
+const CUDA_PTX_SRC_PATH_PATTERN: &str = "src/cu/for_ptx/*.cu";
+const PTX_STRING_LOCATION: &str = "src/ptx.rs";
+const CUDA_EXE_SRC_DIR: &str = "src/cu/for_exe";
 
 fn build_ptx() {
-    let builder = bindgen_cuda::Builder::default().kernel_paths_glob("src/cu/for_ptx/*.cu");
-    let bindings = builder.build_ptx().unwrap();
-    let _ = bindings.write("src/ptx.rs");
+    let builder = bindgen_cuda::Builder::default().kernel_paths_glob(CUDA_PTX_SRC_PATH_PATTERN);
+    let bindings = builder.build_ptx().expect("failed to build ptx");
+    let _ = bindings.write(PTX_STRING_LOCATION);
 }
 
 fn build_exe() {
-    let nvcc_path = cuda_env::cuda_include_dir()
-        .unwrap()
-        .join("bin")
-        .join("nvcc.exe");
-    let src_glob: Vec<PathBuf> = glob::glob("src/cu/for_exe/*.cu")
-        .expect("Invalid blob")
-        .map(|p| p.expect("Invalid path"))
-        .collect();
-    let executable_name = src_glob
-        .iter()
-        .map(|p| {
-            p.display()
-                .to_string()
-                .split_off("src/cu/for_exe/".len())
-                .split('.')
-                .next()
-                .unwrap()
-                .to_string()
-        })
-        .collect::<Vec<_>>();
-    let src_path = src_glob
-        .iter()
-        .map(|p| PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap()).join(p));
+    let nvcc_path = env_manager::nvcc_path().expect("failed to get nvcc path");
 
-    for (src, exe) in src_path.zip(executable_name) {
-        let cap_str = format!("-arch=sm_{}", cuda_env::compute_cap());
-        let out = Path::new(&std::env::var("OUT_DIR").unwrap()).join(&exe);
+    let exe_names = {
+        env::set_current_dir(env_manager::manifest_dir().join(Path::new(CUDA_EXE_SRC_DIR)))
+            .expect("failed to set current dir");
+        let exe_names: Vec<String> = glob::glob("*.cu")
+            .expect("Invalid blob")
+            .map(|p| {
+                p.expect("Invalid path")
+                    .display()
+                    .to_string()
+                    .split('.')
+                    .next()
+                    .expect("executable name wrong")
+                    .to_string()
+            })
+            .collect();
+        env::set_current_dir(env_manager::manifest_dir()).expect("failed to set current dir");
+        exe_names
+    };
+
+    let src_pathes: Vec<PathBuf> = exe_names
+        .iter()
+        .map(|name| {
+            env_manager::manifest_dir()
+                .join(CUDA_EXE_SRC_DIR)
+                .join(name.clone() + ".cu")
+        })
+        .collect();
+
+    for (src, exe) in src_pathes.iter().zip(exe_names.iter()) {
+        let cap_str = format!("-arch=sm_{}", env_manager::cuda_compute_cap());
+        let out_path = Path::new(&std::env::var("OUT_DIR").expect("out dir wrong"))
+            .join(exe.clone() + env_manager::EXE_SUFFIX);
         let args = vec![
-            "/C",
             nvcc_path.to_str().unwrap(),
             &cap_str,
             "-rdc=true",
             src.to_str().unwrap(),
             "-o",
-            out.to_str().unwrap(),
+            out_path.to_str().unwrap(),
             "-lcudadevrt",
         ];
-        cuda_env::run_cmd(&args);
+        env_manager::run_cmd(&args);
     }
 }
 

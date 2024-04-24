@@ -1,8 +1,7 @@
-use std::{
-    io::{self, Write},
-    path::PathBuf,
-    process::Command,
-};
+use std::path::PathBuf;
+
+#[cfg(target_os = "windows")]
+pub const EXE_SUFFIX: &str = ".exe";
 
 pub fn cuda_include_dir() -> Option<PathBuf> {
     let env_vars = [
@@ -34,7 +33,18 @@ pub fn cuda_include_dir() -> Option<PathBuf> {
         .find(|path| path.join("include").join("cuda.h").is_file())
 }
 
-pub fn compute_cap() -> usize {
+pub fn nvcc_path() -> Option<PathBuf> {
+    let exe = String::from("nvcc") + EXE_SUFFIX;
+    let cuda_path = cuda_include_dir()?;
+    let path = cuda_path.join("bin").join(exe);
+    if path.is_file() {
+        Some(path)
+    } else {
+        None
+    }
+}
+
+pub fn cuda_compute_cap() -> usize {
     // Try to parse compute caps from env
     let compute_cap = if let Ok(compute_cap_str) = std::env::var("CUDA_COMPUTE_CAP") {
         compute_cap_str
@@ -97,16 +107,24 @@ pub fn compute_cap() -> usize {
     compute_cap
 }
 
+#[cfg(target_os = "windows")]
 pub fn run_cmd(args: &[&str]) -> bool {
+    use std::{
+        io::{self, Write},
+        process::Command,
+    };
+
     let mut cmd = Command::new("cmd");
+    cmd.arg("/C");
     cmd.args(args);
-    println!("cmd = {:?}", cmd);
 
     let output = cmd.output().expect("failed to execute process");
-
-    println!("status: {}", output.status);
     io::stdout().write_all(&output.stdout).unwrap();
     io::stderr().write_all(&output.stderr).unwrap();
 
     output.status.success()
+}
+
+pub fn manifest_dir() -> PathBuf {
+    std::env::var_os("CARGO_MANIFEST_DIR").unwrap().into()
 }
