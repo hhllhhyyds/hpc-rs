@@ -12,7 +12,7 @@ pub struct PtxLoader {
 impl PtxLoader {
     pub fn new(dev: &Arc<CudaDevice>, ptx: &str, module: &str, functions: &[&'static str]) -> Self {
         let dev = dev.clone();
-        dev.load_ptx(Ptx::from_src(ptx), &module, &functions)
+        dev.load_ptx(Ptx::from_src(ptx), module, functions)
             .expect("Fail to load ptx");
 
         let functions = functions.iter().map(|f| f.to_string()).collect::<Vec<_>>();
@@ -21,7 +21,7 @@ impl PtxLoader {
         for f in functions.iter() {
             cuda_funcs.insert(
                 f.clone(),
-                dev.get_func(&module, &f)
+                dev.get_func(module, f)
                     .unwrap_or_else(|| panic!("Fail to get function {} from ptx", f)),
             );
         }

@@ -12,6 +12,7 @@ rand = "0.8.0"
 
 [build-dependencies]
 bindgen_cuda = "0.1.5"
+glob = "0.3.0"
 
 [[bin]]
 name = "cuda-profile"
