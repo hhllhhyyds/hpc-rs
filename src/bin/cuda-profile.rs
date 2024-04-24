@@ -6,23 +6,23 @@ use std::{
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    assert!(args.len() == 3, "arguments number incorrect");
     assert!(args[1] == "example");
 
-    let example = args[2].clone() + ".exe";
+    let example_exe = args[2].clone() + ".exe";
+
     let mut example_path: PathBuf = std::env::var_os("CARGO_MANIFEST_DIR").unwrap().into();
     example_path.push("target");
     example_path.push("debug");
     example_path.push("examples");
-    example_path.push(example);
+    example_path.push(example_exe);
 
     println!("example_path = {}", example_path.display());
     assert!(std::path::Path::exists(&example_path));
 
-    profile(example_path);
+    profile(example_path, &args[3..]);
 }
 
-fn profile(program: impl AsRef<Path>) {
+fn profile<T: AsRef<str>, P: AsRef<Path>>(program: P, programs_args: &[T]) {
     let nsys_path_pattern = Path::new("C:\\")
         .join("Program Files")
         .join("NVIDIA Corporation")
@@ -36,7 +36,7 @@ fn profile(program: impl AsRef<Path>) {
         .unwrap();
     println!("nsys_path = {}", nsys.display());
 
-    let args = [
+    let mut args = vec![
         "/C",
         nsys.to_str().unwrap(),
         "profile",
@@ -47,6 +47,7 @@ fn profile(program: impl AsRef<Path>) {
         "--force-overwrite=true",
         program.as_ref().to_str().unwrap(),
     ];
+    args.extend(programs_args.iter().map(|x| x.as_ref()));
 
     let mut cmd = Command::new("cmd");
     cmd.args(args);
