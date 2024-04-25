@@ -118,9 +118,14 @@ pub fn run_cmd(args: &[&str]) -> bool {
     cmd.arg("/C");
     cmd.args(args);
 
+    println!("cmd = {:?}", cmd);
     let output = cmd.output().expect("failed to execute process");
-    io::stdout().write_all(&output.stdout).unwrap();
-    io::stderr().write_all(&output.stderr).unwrap();
+    io::stdout()
+        .write_all(String::from_utf8_lossy(&output.stdout).as_bytes())
+        .unwrap();
+    io::stderr()
+        .write_all(String::from_utf8_lossy(&output.stderr).as_bytes())
+        .unwrap();
 
     output.status.success()
 }

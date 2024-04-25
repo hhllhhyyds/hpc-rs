@@ -4,6 +4,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use cmake::Config;
+
 const CUDA_PTX_SRC_PATH_PATTERN: &str = "src/cu/for_ptx/*.cu";
 const PTX_STRING_LOCATION: &str = "src/ptx.rs";
 const CUDA_EXE_SRC_DIR: &str = "src/cu/for_exe";
@@ -62,9 +64,17 @@ fn build_exe() {
     }
 }
 
+fn build_c_libs() {
+    let dst = Config::new("lib/foo").build();
+
+    println!("cargo:rustc-link-search=native={}", dst.display());
+    println!("cargo:rustc-link-lib=static=foo");
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     build_ptx();
     build_exe();
+    build_c_libs();
 
     Ok(())
 }
