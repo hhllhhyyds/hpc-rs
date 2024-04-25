@@ -69,6 +69,14 @@ fn build_c_libs() {
 
     println!("cargo:rustc-link-search=native={}", dst.display());
     println!("cargo:rustc-link-lib=static=foo");
+
+    Config::new("lib/run_cuda_test")
+        .configure_arg(
+            String::from("-DCMAKE_CUDA_ARCHITECTURES=")
+                + &env_manager::cuda_compute_cap().to_string(),
+        )
+        .no_build_target(true)
+        .build();
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
