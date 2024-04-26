@@ -1,8 +1,6 @@
 use std::{env, path::PathBuf};
 
-#[test]
-#[ignore = "manual"]
-fn run_all_examples() {
+fn main() {
     let manifest_dir: PathBuf = env_manager::manifest_dir();
     let example_dir = manifest_dir.join("examples");
     env::set_current_dir(example_dir).unwrap();
