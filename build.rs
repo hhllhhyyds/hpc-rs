@@ -12,6 +12,7 @@ fn build_cuda_ptx() {
 }
 
 fn build_c_libs() {
+    println!("cargo:rerun-if-changed=lib");
     // TODO: glob libs
     let dst = Config::new("lib/foo").build();
 
@@ -28,7 +29,6 @@ fn build_c_libs() {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    println!("cargo:rerun-if-changed=lib");
     build_cuda_ptx();
 
     build_c_libs();
