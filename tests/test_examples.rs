@@ -21,6 +21,10 @@ fn run_all_examples() {
         .collect();
     env::set_current_dir(manifest_dir).unwrap();
     for example in examples.iter() {
-        env_manager::run_cmd(&["cargo", "run", "--example", &example]);
+        let mut ars = vec!["cargo", "run", "--example", &example];
+        if env!("OUT_DIR").contains("release") {
+            ars.push("--release");
+        }
+        env_manager::run_cmd(&ars);
     }
 }
