@@ -1,4 +1,4 @@
-use std::{env::consts::EXE_SUFFIX, path::PathBuf};
+use std::{env::consts::EXE_SUFFIX, path::PathBuf, process::Command};
 
 pub fn cuda_include_dir() -> Option<PathBuf> {
     let env_vars = [
@@ -104,29 +104,22 @@ pub fn cuda_compute_cap() -> usize {
     compute_cap
 }
 
-#[cfg(target_os = "windows")]
 pub fn run_cmd(args: &[&str]) {
-    use std::{
-        io::{self, Write},
-        process::Command,
-    };
+    let mut cmd = Command::new(args[0]);
 
-    let mut cmd = Command::new("cmd");
-    cmd.arg("/C");
-    cmd.args(args);
+    cmd.args(&args[1..]);
 
-    println!("cmd = {:?}", cmd);
-    let output = cmd.output().expect("failed to execute process");
-    io::stdout()
-        .write_all(String::from_utf8_lossy(&output.stdout).as_bytes())
-        .unwrap();
-    io::stdout().flush().unwrap();
-    io::stderr()
-        .write_all(String::from_utf8_lossy(&output.stderr).as_bytes())
-        .unwrap();
-    io::stderr().flush().unwrap();
-
-    assert!(output.status.success());
+    println!(
+        "Running {}",
+        format!("{:?}", cmd)
+            .split('\"')
+            .collect::<Vec<_>>()
+            .join("")
+    );
+    cmd.spawn()
+        .expect("failed to run cmd")
+        .wait()
+        .expect("failed to run command");
 }
 
 pub fn manifest_dir() -> PathBuf {

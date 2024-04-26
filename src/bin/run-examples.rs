@@ -11,7 +11,7 @@ fn main() {
                 .to_str()
                 .unwrap()
                 .to_string()
-                .split(".")
+                .split('.')
                 .next()
                 .unwrap()
                 .to_string()
@@ -19,7 +19,7 @@ fn main() {
         .collect();
     env::set_current_dir(manifest_dir).unwrap();
     for example in examples.iter() {
-        let mut ars = vec!["cargo", "run", "--example", &example];
+        let mut ars = vec!["cargo", "run", "--example", example];
         if env!("OUT_DIR").contains("release") {
             ars.push("--release");
         }
