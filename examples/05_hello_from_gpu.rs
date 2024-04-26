@@ -19,7 +19,7 @@ fn gpu_hello_world(dev: &Arc<CudaDevice>) -> Result<(), DriverError> {
     let func_name = "cuda_hello";
 
     dev.load_ptx(
-        Ptx::from_src(hpc_rs::ptx::HELLO_CUDA),
+        Ptx::from_src(hpc_rs::cuda::ptx::HELLO_CUDA),
         func_name,
         &[func_name],
     )?;
@@ -44,7 +44,7 @@ fn check_index(dev: &Arc<CudaDevice>) -> Result<(), DriverError> {
     let func_name = "check_index";
 
     dev.load_ptx(
-        Ptx::from_src(hpc_rs::ptx::HELLO_CUDA),
+        Ptx::from_src(hpc_rs::cuda::ptx::HELLO_CUDA),
         module_name,
         &[func_name],
     )?;

@@ -1,4 +1,4 @@
-use hpc_rs::cuda_initialize;
+use hpc_rs::cuda::cuda_initialize;
 
 fn main() {
     cuda_initialize::cuda_initialize().unwrap();

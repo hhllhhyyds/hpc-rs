@@ -1,9 +1,9 @@
-use std::path::Path;
+use std::env::consts::EXE_SUFFIX;
 
 use hpc_rs::error::Error;
 
 fn main() -> Result<(), Error> {
-    let exe = Path::new(env!("OUT_DIR")).join("static_variable.exe");
+    let exe = hpc_rs::cmake_outdir().join("static_variable".to_string() + EXE_SUFFIX);
     env_manager::run_cmd(&[exe.to_str().unwrap()]);
     Ok(())
 }

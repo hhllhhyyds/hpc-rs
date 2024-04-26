@@ -1,7 +1,4 @@
-use std::path::PathBuf;
-
-#[cfg(target_os = "windows")]
-pub const EXE_SUFFIX: &str = ".exe";
+use std::{env::consts::EXE_SUFFIX, path::PathBuf};
 
 pub fn cuda_include_dir() -> Option<PathBuf> {
     let env_vars = [
@@ -108,7 +105,7 @@ pub fn cuda_compute_cap() -> usize {
 }
 
 #[cfg(target_os = "windows")]
-pub fn run_cmd(args: &[&str]) -> bool {
+pub fn run_cmd(args: &[&str]) {
     use std::{
         io::{self, Write},
         process::Command,
@@ -123,11 +120,13 @@ pub fn run_cmd(args: &[&str]) -> bool {
     io::stdout()
         .write_all(String::from_utf8_lossy(&output.stdout).as_bytes())
         .unwrap();
+    io::stdout().flush().unwrap();
     io::stderr()
         .write_all(String::from_utf8_lossy(&output.stderr).as_bytes())
         .unwrap();
+    io::stderr().flush().unwrap();
 
-    output.status.success()
+    assert!(output.status.success());
 }
 
 pub fn manifest_dir() -> PathBuf {

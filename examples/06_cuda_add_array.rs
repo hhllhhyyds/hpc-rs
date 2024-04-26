@@ -15,7 +15,7 @@ fn main() -> Result<(), Error> {
 
     let start = std::time::Instant::now();
     dev.load_ptx(
-        Ptx::from_src(hpc_rs::ptx::GPU_ADD_ARRAY),
+        Ptx::from_src(hpc_rs::cuda::ptx::GPU_ADD_ARRAY),
         "gpu_add_array",
         &["add_array"],
     )?;

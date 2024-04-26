@@ -1,6 +1,6 @@
 use cudarc::driver::DriverError;
 
-use crate::cuda_initialize::ErrorCudaInitialize;
+use super::cuda::cuda_initialize::ErrorCudaInitialize;
 
 #[derive(Debug)]
 pub enum Error {

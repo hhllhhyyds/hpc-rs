@@ -1,7 +1,7 @@
 use cudarc::driver::{CudaDevice, LaunchAsync, LaunchConfig};
-use hpc_rs::cuda_initialize::GpuInfo;
+use hpc_rs::cuda::cuda_initialize::GpuInfo;
+use hpc_rs::cuda::ptx_loader::PtxLoader;
 use hpc_rs::error::Error;
-use hpc_rs::ptx_loader::PtxLoader;
 use rand::Rng;
 
 fn main() -> Result<(), Error> {
@@ -41,7 +41,7 @@ fn main() -> Result<(), Error> {
 
     let ptx_loader = PtxLoader::new(
         &dev,
-        hpc_rs::ptx::REDUCE_SUM,
+        hpc_rs::cuda::ptx::REDUCE_SUM,
         "reduce_sum",
         &[
             "reduce_neighbored_1",
