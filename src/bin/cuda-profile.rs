@@ -1,7 +1,9 @@
 use std::{
-    env::{self, consts::EXE_SUFFIX},
+    env::consts::EXE_SUFFIX,
     path::{Path, PathBuf},
 };
+
+use hpc_rs::clib::example_build_dir;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -9,14 +11,14 @@ fn main() {
 
     let example_exe = args[2].clone() + EXE_SUFFIX;
 
-    let mut example_path = env_manager::manifest_dir();
-    example_path.push("target");
-    example_path.push(env::var("PROFILE").unwrap());
-    example_path.push("examples");
-    example_path.push(example_exe);
+    let example_path = example_build_dir().join(example_exe);
 
     println!("example_path = {}", example_path.display());
-    assert!(std::path::Path::exists(&example_path));
+    assert!(
+        std::path::Path::exists(&example_path),
+        "error: {} not exists",
+        example_path.display()
+    );
 
     // nsys_profile_help();
     profile(example_path, &args[3..]);
