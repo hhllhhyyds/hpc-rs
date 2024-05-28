@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-
+num = "0.4"
+image = "0.25"
 
 [build-dependencies]
 bindgen_cuda = "0.1.5"
