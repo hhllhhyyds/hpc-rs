@@ -2,25 +2,5 @@
 name = "hpc-rs"
 version = "0.1.0"
 edition = "2021"
-build = "build.rs"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-env_manager = {path = "env_manager"}
-cudarc = "0.10.0"
-glob = "0.3.0"
-rand = "0.8.0"
-
-
-[build-dependencies]
-env_manager = {path = "env_manager"}
-bindgen_cuda = "0.1.5"
-glob = "0.3.0"
-cmake = "0.1.50"
-
-[[bin]]
-name = "cuda-profile"
-
-[workspace]
-members = ["env_manager"]
