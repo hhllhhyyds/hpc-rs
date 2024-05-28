@@ -8,3 +8,10 @@ edition = "2021"
 
 [build-dependencies]
 bindgen_cuda = "0.1.5"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "array_add"
+harness = false
