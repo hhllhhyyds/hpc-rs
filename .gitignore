@@ -15,8 +15,5 @@ Cargo.lock
 
 # Added by cargo
 .vscode
-
-
-# Added by cargo
-
 /target
+/lib_gen
