@@ -12,7 +12,7 @@ fn main() {
     builder.build_lib(lib_directory.join(format!("lib{}.a", cuda_lib_name)));
 
     println!("cargo:rustc-link-search={}", lib_directory.display());
-    println!("cargo:rustc-link-search={}", "/usr/local/cuda/lib64");
+    println!("cargo:rustc-link-search=/usr/local/cuda/lib64");
 
     println!("cargo:rustc-link-lib=static={}", cuda_lib_name);
     println!("cargo:rustc-link-lib=cudart");

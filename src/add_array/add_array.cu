@@ -11,7 +11,7 @@ __global__ void add_array_kernel(float *A, float *B, float *C, int N)
     }
 }
 
-extern "C" void add_array(float *A, float *B, float *C, int N, dim3 grid, dim3 block)
+extern "C" void add_array(float *A, float *B, float *C, int N, int grid, int block)
 {
 
     float *d_a, *d_b, *d_c;
@@ -26,4 +26,8 @@ extern "C" void add_array(float *A, float *B, float *C, int N, dim3 grid, dim3 b
     add_array_kernel<<<grid, block>>>(d_a, d_b, d_c, N);
 
     CUDA_CHECK(cudaMemcpy(C, d_c, N * sizeof(float), cudaMemcpyDeviceToHost));
+
+    CUDA_CHECK(cudaFree(d_a));
+    CUDA_CHECK(cudaFree(d_b));
+    CUDA_CHECK(cudaFree(d_c));
 }

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <stdio.h>
-#include <cuda_runtime.h>
 #include <stdlib.h>
 
+#include <cuda_runtime.h>
+
+// TODO: throw rust Result Error instead of exit(1)
 #define CUDA_CHECK(call)                                                       \
     {                                                                          \
         const cudaError_t error = call;                                        \
@@ -14,4 +16,3 @@
             exit(1);                                                           \
         }                                                                      \
     }
-    
