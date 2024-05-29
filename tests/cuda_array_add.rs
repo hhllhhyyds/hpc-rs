@@ -8,8 +8,6 @@ fn test_array_add() {
     }
 
     const N: usize = 10000000_usize;
-    println!("n - 1 = {:e}", (N - 1) as f64);
-    println!("n = {:e}", N as f64);
     let a: Vec<_> = (0..N).map(|x| x as f32 / 10000.).collect();
     let b: Vec<_> = (0..N).rev().map(|x| x as f32 / 10000.).collect();
     let start = std::time::Instant::now();

@@ -13,7 +13,8 @@ Cargo.lock
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
 
-# Added by cargo
+# Vscode config
 .vscode
-/target
+
+# C/C++ or cuda lib generated during build
 /lib_gen

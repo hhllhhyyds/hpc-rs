@@ -1,5 +1,7 @@
 fn main() {
     println!("cargo::rerun-if-changed=src");
+    println!("cargo::rerun-if-changed=benches");
+    println!("cargo::rerun-if-changed=tests");
 
     let lib_dir_name = "lib_gen";
     let lib_directory =

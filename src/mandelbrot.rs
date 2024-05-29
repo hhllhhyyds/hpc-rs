@@ -2,7 +2,7 @@ use std::ops::Range;
 
 use num::complex::Complex64;
 
-pub mod binding;
+mod binding;
 
 #[derive(Clone, Debug)]
 pub struct MandelbrotGenConfig {
@@ -32,7 +32,7 @@ impl MandelbrotGenConfig {
         z_n * z_n + c
     }
 
-    pub fn generate_set(&self) -> Vec<u32> {
+    pub fn cpu_generate_set(&self) -> Vec<u32> {
         let n = self.pixel_count();
         let mut out = vec![self.iter_count_limit as u32; n];
 
@@ -51,6 +51,20 @@ impl MandelbrotGenConfig {
                 }
             }
         }
+
+        out
+    }
+
+    pub fn gpu_generate_set(&self) -> Vec<u32> {
+        let n = self.pixel_count();
+        let mut out = vec![self.iter_count_limit as u32; n];
+
+        unsafe {
+            binding::gen_mandelbrot_set(
+                out.as_mut_ptr(),
+                &binding::CMandelbrotGenConfig::from(self.clone()),
+            )
+        };
 
         out
     }
