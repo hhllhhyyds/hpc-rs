@@ -2,6 +2,9 @@ use std::ops::Range;
 
 use num::complex::Complex64;
 
+pub mod binding;
+
+#[derive(Clone, Debug)]
 pub struct MandelbrotGenConfig {
     pub x_range: Range<f64>,
     pub y_range: Range<f64>,
@@ -12,7 +15,7 @@ pub struct MandelbrotGenConfig {
 }
 
 impl MandelbrotGenConfig {
-    fn pixel_count(&self) -> usize {
+    pub fn pixel_count(&self) -> usize {
         self.x_pixel_count * self.y_pixel_count
     }
     fn pixel_xy_to_1d(&self, x: usize, y: usize) -> usize {
@@ -53,47 +56,17 @@ impl MandelbrotGenConfig {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn iter_count_to_rgb(iter_count: &[u32]) -> Vec<[u8; 3]> {
-        let mut max_iter = 0;
-        for x in iter_count {
-            if max_iter < *x {
-                max_iter = *x;
-            }
+impl From<MandelbrotGenConfig> for binding::CMandelbrotGenConfig {
+    fn from(value: MandelbrotGenConfig) -> Self {
+        Self {
+            x_range_start: value.x_range.start,
+            x_range_end: value.x_range.end,
+            y_range_start: value.y_range.start,
+            y_range_end: value.y_range.end,
+            x_pixel_count: value.x_pixel_count as i32,
+            y_pixel_count: value.y_pixel_count as i32,
+            diverge_limit: value.diverge_limit,
+            iter_count_limit: value.iter_count_limit as i32,
         }
-        iter_count
-            .iter()
-            .map(|ic| color(*ic as f32 / max_iter as f32))
-            .collect()
-    }
-
-    fn color(t: f32) -> [u8; 3] {
-        [(255.0 * t) as u8, (255.0 * t) as u8, (255.0 * t) as u8]
-    }
-
-    #[test]
-    #[ignore = "manual"]
-    fn test_gen_mandelbrot() {
-        let x_count = 7200;
-        let ratio = 1080 as f64 / 1920 as f64;
-        let y_count = (ratio as f32 * x_count as f32) as usize;
-        let iter_count_limit = 70;
-        let config = MandelbrotGenConfig {
-            x_range: -2.5..1.5,
-            y_range: -2.0 * ratio..2.0 * ratio,
-            x_pixel_count: x_count,
-            y_pixel_count: y_count,
-            diverge_limit: 100.,
-            iter_count_limit,
-        };
-        let set = config.generate_set();
-        let color = iter_count_to_rgb(&set);
-        let img =
-            image::RgbImage::from_vec(x_count as u32, y_count as u32, color.concat()).unwrap();
-        img.save_with_format("target/mandelbrot.png", image::ImageFormat::Png)
-            .unwrap();
     }
 }
