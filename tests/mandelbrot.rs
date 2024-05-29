@@ -96,3 +96,15 @@ fn cpu_gen_mandelbrot_500() {
 fn gpu_gen_mandelbrot_3000() {
     gpu_gen_mandelbrot(3000)
 }
+
+#[test]
+fn test_cpu_gpu_result_eq() {
+    let config = config(500);
+
+    let set_cpu = config.cpu_generate_set();
+    let set_gpu = config.gpu_generate_set();
+
+    for (a, b) in set_cpu.iter().zip(set_gpu.iter()) {
+        assert_eq!(a, b, "a = {a}, b = {b}")
+    }
+}

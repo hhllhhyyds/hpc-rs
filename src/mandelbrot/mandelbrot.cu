@@ -12,25 +12,26 @@ struct C_MandelbrotGenConfig
     int iter_count_limit;
 };
 
-// TODO: use constant memory to store config
-__global__ void gen_mandelbrot_set_kernel(unsigned int *iter_count, const struct C_MandelbrotGenConfig config)
+__constant__ C_MandelbrotGenConfig d_config;
+
+__global__ void gen_mandelbrot_set_kernel(unsigned int *iter_count)
 {
     int xi = blockIdx.x * blockDim.x + threadIdx.x;
     int yi = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (xi < config.x_pixel_count && yi < config.y_pixel_count)
+    if (xi < d_config.x_pixel_count && yi < d_config.y_pixel_count)
     {
-        const double c_x = config.x_range_start + (config.x_range_end - config.x_range_start) * xi / config.x_pixel_count;
-        const double c_y = config.y_range_start + (config.y_range_end - config.y_range_start) * yi / config.y_pixel_count;
+        const double c_x = d_config.x_range_start + (d_config.x_range_end - d_config.x_range_start) * xi / d_config.x_pixel_count;
+        const double c_y = d_config.y_range_start + (d_config.y_range_end - d_config.y_range_start) * yi / d_config.y_pixel_count;
 
         double z_x = c_x;
         double z_y = c_y;
 
-        const int pos = yi * config.x_pixel_count + xi;
-        iter_count[pos] = config.iter_count_limit;
+        const int pos = yi * d_config.x_pixel_count + xi;
+        iter_count[pos] = d_config.iter_count_limit;
 
-        const double limit = config.diverge_limit * config.diverge_limit;
-        for (int count = 0; count < config.iter_count_limit; ++count)
+        const double limit = d_config.diverge_limit * d_config.diverge_limit;
+        for (int count = 0; count < d_config.iter_count_limit; ++count)
         {
             double re = z_x * z_x - z_y * z_y + c_x;
             double im = 2.0 * z_x * z_y + c_y;
@@ -38,7 +39,7 @@ __global__ void gen_mandelbrot_set_kernel(unsigned int *iter_count, const struct
             z_y = im;
             if ((z_x * z_x + z_y * z_y) > limit)
             {
-                iter_count[pos] = count;
+                iter_count[pos] = count + 1;
                 break;
             }
         }
@@ -47,17 +48,17 @@ __global__ void gen_mandelbrot_set_kernel(unsigned int *iter_count, const struct
 
 extern "C" void gen_mandelbrot_set(unsigned int *set, const struct C_MandelbrotGenConfig *config)
 {
-    const struct C_MandelbrotGenConfig conf = *config;
+    CUDA_CHECK(cudaMemcpyToSymbol(d_config, config, sizeof(C_MandelbrotGenConfig)));
 
     dim3 block(32, 32);
-    dim3 grid((conf.x_pixel_count + block.x - 1) / block.x, (conf.y_pixel_count + block.y - 1) / block.y);
+    dim3 grid((config->x_pixel_count + block.x - 1) / block.x, (config->y_pixel_count + block.y - 1) / block.y);
 
-    const int data_size = conf.x_pixel_count * conf.y_pixel_count * sizeof(unsigned int);
+    const int data_size = config->x_pixel_count * config->y_pixel_count * sizeof(unsigned int);
 
     unsigned int *d_set;
     CUDA_CHECK(cudaMalloc((void **)&d_set, data_size));
 
-    gen_mandelbrot_set_kernel<<<grid, block>>>(d_set, conf);
+    gen_mandelbrot_set_kernel<<<grid, block>>>(d_set);
 
     CUDA_CHECK(cudaMemcpy(set, d_set, data_size, cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaFree(d_set));
