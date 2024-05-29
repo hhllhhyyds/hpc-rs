@@ -1,4 +1,6 @@
 fn main() {
+    println!("cargo::rerun-if-changed=src");
+
     let lib_dir_name = "lib_gen";
     let lib_directory =
         std::path::Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap()).join(lib_dir_name);
