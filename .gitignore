@@ -15,6 +15,3 @@ Cargo.lock
 
 # Vscode config
 .vscode
-
-# C/C++ or cuda lib generated during build
-/lib_gen

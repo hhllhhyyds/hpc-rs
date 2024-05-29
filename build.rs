@@ -8,6 +8,7 @@ fn main() {
     println!("cargo::rerun-if-changed=tests");
 
     let foreign_lib_dir = std::path::Path::new(&std::env::var("CARGO_MANIFEST_DIR").unwrap())
+        .join("target")
         .join(FOREIGN_LIB_DIR_NAME);
     if !std::path::Path::exists(&foreign_lib_dir) {
         std::fs::create_dir(&foreign_lib_dir).unwrap();
