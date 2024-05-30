@@ -25,7 +25,16 @@ fn test_blur_mandelbrot_basic() {
     }
     assert!(std::path::Path::exists(&image_path));
     let mut rgb = load_image(&image_path).unwrap();
+
+    let start = std::time::Instant::now();
     rgb.blur_basic();
+    let end = std::time::Instant::now();
+    let duration = end - start;
+    println!(
+        "time used in image blur = {} ms",
+        duration.as_nanos() as f32 / 1000000.
+    );
+
     let out_path = std::path::Path::new("target").join("gpu_mandelbrot_3000_blured_basic_out.png");
     save_image(&rgb, &out_path).unwrap();
     assert!(std::path::Path::exists(&out_path));
@@ -39,7 +48,16 @@ fn test_blur_mandelbrot_constant_filter() {
     }
     assert!(std::path::Path::exists(&image_path));
     let mut rgb = load_image(&image_path).unwrap();
+
+    let start = std::time::Instant::now();
     rgb.blur_constant_filter();
+    let end = std::time::Instant::now();
+    let duration = end - start;
+    println!(
+        "time used in image blur = {} ms",
+        duration.as_nanos() as f32 / 1000000.
+    );
+
     let out_path =
         std::path::Path::new("target").join("gpu_mandelbrot_3000_blured_constant_filter.png");
     save_image(&rgb, &out_path).unwrap();
