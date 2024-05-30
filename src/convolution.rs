@@ -4,6 +4,8 @@ use crate::memory::CudaDevMemory;
 
 mod binding;
 
+pub mod image_process;
+
 #[allow(unused)]
 fn simple_gpu_conv_2d(
     input: &[f32],

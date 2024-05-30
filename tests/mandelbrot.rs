@@ -93,7 +93,7 @@ fn cpu_gen_mandelbrot_500() {
 }
 
 #[test]
-fn gpu_gen_mandelbrot_3000() {
+pub fn gpu_gen_mandelbrot_3000() {
     gpu_gen_mandelbrot(3000)
 }
 
