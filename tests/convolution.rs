@@ -18,16 +18,30 @@ fn test_load_save_image() {
 }
 
 #[test]
-fn test_blur_mandelbrot() {
+fn test_blur_mandelbrot_basic() {
     let image_path = std::path::Path::new("target").join("gpu_mandelbrot_3000.png");
     if !std::path::Path::exists(&image_path) {
         gpu_gen_mandelbrot_3000();
     }
     assert!(std::path::Path::exists(&image_path));
     let mut rgb = load_image(&image_path).unwrap();
-    blur_rgb_image(&mut rgb);
+    rgb.blur_basic();
+    let out_path = std::path::Path::new("target").join("gpu_mandelbrot_3000_blured_basic_out.png");
+    save_image(&rgb, &out_path).unwrap();
+    assert!(std::path::Path::exists(&out_path));
+}
 
-    let out_path = std::path::Path::new("target").join("gpu_mandelbrot_3000_blured_out.png");
+#[test]
+fn test_blur_mandelbrot_constant_filter() {
+    let image_path = std::path::Path::new("target").join("gpu_mandelbrot_3000.png");
+    if !std::path::Path::exists(&image_path) {
+        gpu_gen_mandelbrot_3000();
+    }
+    assert!(std::path::Path::exists(&image_path));
+    let mut rgb = load_image(&image_path).unwrap();
+    rgb.blur_constant_filter();
+    let out_path =
+        std::path::Path::new("target").join("gpu_mandelbrot_3000_blured_constant_filter.png");
     save_image(&rgb, &out_path).unwrap();
     assert!(std::path::Path::exists(&out_path));
 }

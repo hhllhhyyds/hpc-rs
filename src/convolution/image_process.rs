@@ -4,9 +4,9 @@ use image::{ImageBuffer, ImageResult, Rgb};
 
 use crate::memory::CudaDevMemory;
 
-use super::binding;
+use super::{binding, const_filter_size};
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct RgbChannels {
     pub width: u32,
     pub height: u32,
@@ -28,6 +28,100 @@ impl RgbChannels {
             ret.push((self.b[i] * 255.) as u8);
         }
         ret
+    }
+
+    pub fn blur_basic(&mut self) {
+        let r = 3;
+        let edge = 2 * r + 1;
+        let filter = vec![1.0 / (edge * edge) as f32; edge * edge];
+
+        let size = (self.width * self.height) as usize;
+
+        let dev_out = CudaDevMemory::new(size * std::mem::size_of::<f32>());
+        let dev_filter = CudaDevMemory::from_host(&filter);
+
+        let dev_in = CudaDevMemory::from_host(&self.r);
+        unsafe {
+            binding::conv_2d_basic(
+                dev_in.dev_ptr() as *const raw::c_float,
+                dev_out.dev_ptr() as *mut raw::c_float,
+                self.width as i32,
+                self.height as i32,
+                dev_filter.dev_ptr() as *const raw::c_float,
+                r as i32,
+            )
+        };
+        dev_out.copy_to_host(&mut self.r);
+
+        dev_in.copy_from_host(&self.g);
+        unsafe {
+            binding::conv_2d_basic(
+                dev_in.dev_ptr() as *const raw::c_float,
+                dev_out.dev_ptr() as *mut raw::c_float,
+                self.width as i32,
+                self.height as i32,
+                dev_filter.dev_ptr() as *const raw::c_float,
+                r as i32,
+            )
+        };
+        dev_out.copy_to_host(&mut self.g);
+
+        dev_in.copy_from_host(&self.b);
+        unsafe {
+            binding::conv_2d_basic(
+                dev_in.dev_ptr() as *const raw::c_float,
+                dev_out.dev_ptr() as *mut raw::c_float,
+                self.width as i32,
+                self.height as i32,
+                dev_filter.dev_ptr() as *const raw::c_float,
+                r as i32,
+            )
+        };
+        dev_out.copy_to_host(&mut self.b);
+    }
+
+    pub fn blur_constant_filter(&mut self) {
+        let filter = vec![1.0 / super::const_filter_size() as f32; const_filter_size()];
+
+        let size = (self.width * self.height) as usize;
+
+        let dev_out = CudaDevMemory::new(size * std::mem::size_of::<f32>());
+
+        let dev_in = CudaDevMemory::from_host(&self.r);
+        unsafe {
+            binding::conv_2d_constant_filter(
+                dev_in.dev_ptr() as *const raw::c_float,
+                dev_out.dev_ptr() as *mut raw::c_float,
+                self.width as i32,
+                self.height as i32,
+                filter.as_ptr(),
+            )
+        };
+        dev_out.copy_to_host(&mut self.r);
+
+        dev_in.copy_from_host(&self.g);
+        unsafe {
+            binding::conv_2d_constant_filter(
+                dev_in.dev_ptr() as *const raw::c_float,
+                dev_out.dev_ptr() as *mut raw::c_float,
+                self.width as i32,
+                self.height as i32,
+                filter.as_ptr(),
+            )
+        };
+        dev_out.copy_to_host(&mut self.g);
+
+        dev_in.copy_from_host(&self.b);
+        unsafe {
+            binding::conv_2d_constant_filter(
+                dev_in.dev_ptr() as *const raw::c_float,
+                dev_out.dev_ptr() as *mut raw::c_float,
+                self.width as i32,
+                self.height as i32,
+                filter.as_ptr(),
+            )
+        };
+        dev_out.copy_to_host(&mut self.b);
     }
 }
 
@@ -58,54 +152,4 @@ pub fn save_image(rgb: &RgbChannels, path: impl AsRef<std::path::Path>) -> Image
             .expect("failed to construct image buffer");
     img.save(path)?;
     Ok(())
-}
-
-pub fn blur_rgb_image(rgb: &mut RgbChannels) {
-    let r = 3;
-    let edge = 2 * r + 1;
-    let filter = vec![1.0 / edge as f32; edge];
-
-    let size = (rgb.width * rgb.height) as usize;
-
-    let dev_out = CudaDevMemory::new(size * std::mem::size_of::<f32>());
-    let dev_filter = CudaDevMemory::from_host(&filter);
-
-    let dev_in = CudaDevMemory::from_host(&rgb.r);
-    unsafe {
-        binding::conv_2d_basic(
-            dev_in.dev_ptr() as *const raw::c_float,
-            dev_out.dev_ptr() as *mut raw::c_float,
-            rgb.width as i32,
-            rgb.height as i32,
-            dev_filter.dev_ptr() as *const raw::c_float,
-            r as i32,
-        )
-    };
-    dev_out.copy_to_host(&mut rgb.r);
-
-    dev_in.copy_from_host(&rgb.g);
-    unsafe {
-        binding::conv_2d_basic(
-            dev_in.dev_ptr() as *const raw::c_float,
-            dev_out.dev_ptr() as *mut raw::c_float,
-            rgb.width as i32,
-            rgb.height as i32,
-            dev_filter.dev_ptr() as *const raw::c_float,
-            r as i32,
-        )
-    };
-    dev_out.copy_to_host(&mut rgb.g);
-
-    dev_in.copy_from_host(&rgb.b);
-    unsafe {
-        binding::conv_2d_basic(
-            dev_in.dev_ptr() as *const raw::c_float,
-            dev_out.dev_ptr() as *mut raw::c_float,
-            rgb.width as i32,
-            rgb.height as i32,
-            dev_filter.dev_ptr() as *const raw::c_float,
-            r as i32,
-        )
-    };
-    dev_out.copy_to_host(&mut rgb.b);
 }
