@@ -7,8 +7,10 @@ use hpc_rs::{
     memory::CudaDevMemory,
 };
 use mandelbrot::gpu_gen_mandelbrot;
+use serial_test::serial;
 
 #[test]
+#[serial]
 fn test_gpu_conv_2d_basic() {
     hpc_rs::device::cuda_device_reset();
     hpc_rs::device::cuda_set_device();
@@ -33,6 +35,7 @@ fn test_gpu_conv_2d_basic() {
 }
 
 #[test]
+#[serial]
 fn test_gpu_conv_2d_constant_filter() {
     hpc_rs::device::cuda_device_reset();
     hpc_rs::device::cuda_set_device();
@@ -67,6 +70,7 @@ fn test_load_save_image() {
 }
 
 #[test]
+#[serial]
 fn test_blur_mandelbrot_basic() {
     hpc_rs::device::cuda_device_reset();
     hpc_rs::device::cuda_set_device();
@@ -94,6 +98,7 @@ fn test_blur_mandelbrot_basic() {
 }
 
 #[test]
+#[serial]
 fn test_blur_mandelbrot_constant_filter() {
     hpc_rs::device::cuda_device_reset();
     hpc_rs::device::cuda_set_device();

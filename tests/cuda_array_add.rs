@@ -1,6 +1,8 @@
 use hpc_rs::add_array::add_array_cuda;
+use serial_test::serial;
 
 #[test]
+#[serial]
 fn test_array_add() {
     hpc_rs::device::cuda_device_reset();
     hpc_rs::device::cuda_set_device();

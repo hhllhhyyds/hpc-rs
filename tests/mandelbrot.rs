@@ -1,4 +1,5 @@
 use hpc_rs::mandelbrot::MandelbrotGenConfig;
+use serial_test::serial;
 
 fn iter_count_to_rgb(iter_count: &[u32]) -> Vec<[u8; 3]> {
     let max_iter = iter_count.iter().max().unwrap();
@@ -76,6 +77,7 @@ pub fn gpu_gen_mandelbrot(x_pixel_count: usize) {
 }
 
 #[test]
+#[serial]
 #[ignore = "manual"]
 fn cpu_gen_mandelbrot_7200() {
     hpc_rs::device::cuda_device_reset();
@@ -85,6 +87,7 @@ fn cpu_gen_mandelbrot_7200() {
 }
 
 #[test]
+#[serial]
 #[ignore = "manual"]
 fn gpu_gen_mandelbrot_7200() {
     hpc_rs::device::cuda_device_reset();
@@ -94,6 +97,7 @@ fn gpu_gen_mandelbrot_7200() {
 }
 
 #[test]
+#[serial]
 fn cpu_gen_mandelbrot_500() {
     hpc_rs::device::cuda_device_reset();
     hpc_rs::device::cuda_set_device();
@@ -102,6 +106,7 @@ fn cpu_gen_mandelbrot_500() {
 }
 
 #[test]
+#[serial]
 fn gpu_gen_mandelbrot_3000() {
     hpc_rs::device::cuda_device_reset();
     hpc_rs::device::cuda_set_device();
@@ -110,6 +115,7 @@ fn gpu_gen_mandelbrot_3000() {
 }
 
 #[test]
+#[serial]
 fn test_cpu_gpu_result_eq() {
     hpc_rs::device::cuda_device_reset();
     hpc_rs::device::cuda_set_device();
