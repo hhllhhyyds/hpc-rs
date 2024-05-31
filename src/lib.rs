@@ -1,5 +1,5 @@
 pub mod add_array;
 pub mod convolution;
-pub mod cuda_common;
+pub mod cuda_thread_hierarchy;
 pub mod mandelbrot;
 pub mod memory;

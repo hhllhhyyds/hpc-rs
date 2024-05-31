@@ -56,7 +56,7 @@ fn cpu_gen_mandelbrot(x_pixel_count: usize) {
     );
 }
 
-fn gpu_gen_mandelbrot(x_pixel_count: usize) {
+pub fn gpu_gen_mandelbrot(x_pixel_count: usize) {
     let config = config(x_pixel_count);
     let start = std::time::Instant::now();
     let set = config.gpu_generate_set();
@@ -93,7 +93,7 @@ fn cpu_gen_mandelbrot_500() {
 }
 
 #[test]
-pub fn gpu_gen_mandelbrot_3000() {
+fn gpu_gen_mandelbrot_3000() {
     gpu_gen_mandelbrot(3000)
 }
 

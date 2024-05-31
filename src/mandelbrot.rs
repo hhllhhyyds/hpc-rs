@@ -18,9 +18,11 @@ impl MandelbrotGenConfig {
     pub fn pixel_count(&self) -> usize {
         self.x_pixel_count * self.y_pixel_count
     }
+
     fn pixel_xy_to_1d(&self, x: usize, y: usize) -> usize {
         y * self.x_pixel_count + x
     }
+
     fn pixel_xy_to_coord(&self, x: usize, y: usize) -> Complex64 {
         let x_coord = self.x_range.start
             + (self.x_range.end - self.x_range.start) * x as f64 / self.x_pixel_count as f64;
@@ -28,6 +30,7 @@ impl MandelbrotGenConfig {
             + (self.y_range.end - self.y_range.start) * y as f64 / self.y_pixel_count as f64;
         Complex64::new(x_coord, y_coord)
     }
+
     fn coord_iter_once(z_n: Complex64, c: Complex64) -> Complex64 {
         z_n * z_n + c
     }

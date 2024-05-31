@@ -1,4 +1,4 @@
-use crate::cuda_common::CudaThreadHierarchy;
+use crate::cuda_thread_hierarchy::CudaThreadHierarchy;
 use std::ffi::{c_float, c_int};
 
 pub fn add_array_cuda(a: &[f32], b: &[f32]) -> Vec<f32> {
