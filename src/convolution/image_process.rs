@@ -62,7 +62,8 @@ impl RgbChannels {
         let mut dev_out = CudaDevMemory::malloc(size * std::mem::size_of::<f32>());
         let dev_filter = CudaDevMemory::from_host(&filter);
 
-        for channel in [&mut self.r, &mut self.g, &mut self.b] {
+        // Bug: only first channel is blured
+        for channel in [&mut self.g, &mut self.r, &mut self.b] {
             dev_in.copy_from_host(channel);
             conv_2d_constant_filter(
                 &dev_in,
