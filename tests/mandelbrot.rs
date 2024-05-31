@@ -78,33 +78,50 @@ pub fn gpu_gen_mandelbrot(x_pixel_count: usize) {
 #[test]
 #[ignore = "manual"]
 fn cpu_gen_mandelbrot_7200() {
-    cpu_gen_mandelbrot(7200)
+    hpc_rs::device::cuda_device_reset();
+    hpc_rs::device::cuda_set_device();
+    cpu_gen_mandelbrot(7200);
+    hpc_rs::device::cuda_device_reset();
 }
 
 #[test]
 #[ignore = "manual"]
 fn gpu_gen_mandelbrot_7200() {
-    gpu_gen_mandelbrot(7200)
+    hpc_rs::device::cuda_device_reset();
+    hpc_rs::device::cuda_set_device();
+    gpu_gen_mandelbrot(7200);
+    hpc_rs::device::cuda_device_reset();
 }
 
 #[test]
 fn cpu_gen_mandelbrot_500() {
-    cpu_gen_mandelbrot(500)
+    hpc_rs::device::cuda_device_reset();
+    hpc_rs::device::cuda_set_device();
+    cpu_gen_mandelbrot(500);
+    hpc_rs::device::cuda_device_reset();
 }
 
 #[test]
 fn gpu_gen_mandelbrot_3000() {
-    gpu_gen_mandelbrot(3000)
+    hpc_rs::device::cuda_device_reset();
+    hpc_rs::device::cuda_set_device();
+    gpu_gen_mandelbrot(3000);
+    hpc_rs::device::cuda_device_reset();
 }
 
 #[test]
 fn test_cpu_gpu_result_eq() {
+    hpc_rs::device::cuda_device_reset();
+    hpc_rs::device::cuda_set_device();
     let config = config(500);
 
     let set_cpu = config.cpu_generate_set();
+    hpc_rs::device::cuda_device_reset();
+    hpc_rs::device::cuda_set_device();
     let set_gpu = config.gpu_generate_set();
 
     for (a, b) in set_cpu.iter().zip(set_gpu.iter()) {
         assert_eq!(a, b, "a = {a}, b = {b}")
     }
+    hpc_rs::device::cuda_device_reset();
 }
